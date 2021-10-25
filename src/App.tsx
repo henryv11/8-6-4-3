@@ -224,16 +224,23 @@ function LiftsTable() {
   );
 }
 
-function ProgramTableRow({ name, week, max }: { name: string; max: number; week: number }) {
+function getStats({ week, max }: { week: number; max: number }) {
   const schemeByWeek = [
-    { sets: 3, reps: 8, percentage: 0.575 },
-    { sets: 4, reps: 6, percentage: 0.65 },
-    { sets: 6, reps: 4, percentage: 0.725 },
+    { sets: 3, reps: 8, percentage: 0.65 },
+    { sets: 4, reps: 6, percentage: 0.7 },
+    { sets: 6, reps: 4, percentage: 0.75 },
     { sets: 8, reps: 3, percentage: 0.8 },
   ];
   const { sets, reps, percentage } = schemeByWeek[week];
   const weight = 2.5 * Math.ceil((max * percentage) / 2.5);
-  const total = (sets * reps * weight).toFixed(0);
+  const total = sets * reps * weight;
+  return { sets, reps, percentage, weight, total };
+}
+
+function ProgramTableRow({ name, week, max }: { name: string; max: number; week: number }) {
+  const { sets, reps, percentage, weight, total } = getStats({ week, max });
+
+  const lastWeekStats = week === 0 ? { total } : getStats({ week: week - 1, max });
 
   return (
     <tr className="border-b-2">
@@ -242,7 +249,9 @@ function ProgramTableRow({ name, week, max }: { name: string; max: number; week:
       <td className="text-center">{reps}</td>
       <td className="text-center">{`${(percentage * 100).toFixed(1)}%`}</td>
       <td className="text-center">{weight}</td>
-      <td className="text-center">{total}</td>
+      <td className="text-center">
+        {total} (+{total - lastWeekStats.total})
+      </td>
     </tr>
   );
 }
